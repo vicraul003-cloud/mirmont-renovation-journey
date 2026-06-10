@@ -842,11 +842,15 @@ export default function App(){
                 const complete=ps.done===ps.total;
                 const inprog=ps.done>0&&!complete;
                 return(
-                  <button key={pi} onClick={()=>{setActivePhaseIdx(pi);setView("phase");}} style={{
+                  <button key={pi} onClick={()=>{setActivePhaseIdx(pi);setView("phase");}}
+                    onMouseEnter={e=>{const el=e.currentTarget;el.style.background="#132660";el.style.borderColor=complete?"rgba(74,154,58,0.8)":inprog?"rgba(201,160,90,0.8)":"rgba(201,160,90,0.5)";el.style.transform="translateY(-3px)";el.style.boxShadow="0 10px 36px rgba(201,160,90,0.14)";}}
+                    onMouseLeave={e=>{const el=e.currentTarget;el.style.background=C.navy;el.style.borderColor=complete?"rgba(74,154,58,0.4)":inprog?"rgba(201,160,90,0.3)":"rgba(201,160,90,0.1)";el.style.transform="translateY(0)";el.style.boxShadow="none";}}
+                    style={{
                     background:C.navy,
                     border:`1px solid ${complete?"rgba(74,154,58,0.4)":inprog?"rgba(201,160,90,0.3)":"rgba(201,160,90,0.1)"}`,
                     borderRadius:20,
-                    cursor:"pointer",padding:"22px",textAlign:"left",position:"relative"}}>
+                    cursor:"pointer",padding:"22px",textAlign:"left",position:"relative",
+                    transition:"all 0.2s ease"}}>
                     <div style={{position:"absolute",top:0,left:0,right:0,height:3,borderRadius:"20px 20px 0 0",
                       background:complete?C.green:inprog?C.gold:"rgba(201,160,90,0.15)"}}/>
                     <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:12}}>
