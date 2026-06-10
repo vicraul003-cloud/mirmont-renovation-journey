@@ -20,7 +20,7 @@ const auth   = getAuth(fbApp);
 
 const IMGBB_KEY  = "fc64721f619cd9120c8751cf404d2313";
 const DRIVE_URL  = "https://script.google.com/macros/s/AKfycbxN-f1n0TNzX6QiTYMcukrKiCzObPzFmZvt5MYLycmtZLZzjamV1zK4ii-09R3wNrMn/exec";
-const SHEETS_URL = "https://script.google.com/macros/s/AKfycbz3uoeYn2phlRytmprQTE8EvoBaF1ztunE2oUeAIRuCJomriZMY6JoOALun6RqZSB_r/exec";
+const SHEETS_URL = "https://script.google.com/macros/s/AKfycbwVq5bUYhEOYmirCQy-DJIJ5cDTLSo8WXfFINhLypJxv47LTdf7wlrkLvexUA1dozhC/exec";
 
 const DEFAULT_CODES = {
   "MRM-2024-001": "Smith Family",
