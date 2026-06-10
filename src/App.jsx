@@ -433,31 +433,70 @@ function TaskRow({pi,ti,task,checked,selection,attachment,threads,adminPhotos,
   const hasPreviews=att.imgs.length>0||att.links.length>0||att.docs.length>0;
 
   return(
-    <div style={{background:C.navy,border:`1px solid ${isChecked?"rgba(74,154,58,0.22)":"rgba(201,160,90,0.1)"}`,
-      marginBottom:6,overflow:"hidden",transition:"border-color 0.2s"}}>
+    <div style={{
+      background:C.navy,
+      border:`1px solid ${isChecked?"rgba(74,154,58,0.3)":"rgba(201,160,90,0.1)"}`,
+      borderLeft:`3px solid ${isChecked?C.green:(sel?"rgba(201,160,90,0.6)":"rgba(201,160,90,0.15)")}`,
+      marginBottom:8,overflow:"hidden",transition:"all 0.2s",
+      borderRadius:4}}>
 
-      {/* Task top row */}
-      <div onClick={()=>onToggle(pi,ti)} style={{display:"flex",alignItems:"flex-start",gap:14,padding:"14px 16px",cursor:"pointer"}}>
-        <div style={{width:20,height:20,flexShrink:0,marginTop:2,
-          border:`1px solid ${isChecked?C.green:"rgba(201,160,90,0.35)"}`,
-          background:isChecked?C.green:"transparent",
-          display:"flex",alignItems:"center",justifyContent:"center",
-          transition:"all 0.2s",fontSize:11,color:C.navyDark,fontWeight:700}}>
-          {isChecked?"✓":""}
+      {/* Line item header */}
+      <div onClick={()=>onToggle(pi,ti)} style={{
+        display:"flex",alignItems:"flex-start",gap:12,
+        padding:"14px 16px 10px",cursor:"pointer",
+        background:isChecked?"rgba(74,154,58,0.04)":"transparent"}}>
+
+        {/* Number + checkbox */}
+        <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:4,flexShrink:0,paddingTop:2}}>
+          <span style={{
+            fontSize:9,fontWeight:700,letterSpacing:"0.12em",
+            color:isChecked?C.green:sel?"rgba(201,160,90,0.7)":"rgba(201,160,90,0.3)",
+            textTransform:"uppercase"}}>
+            {String(ti+1).padStart(2,"0")}
+          </span>
+          <div style={{
+            width:18,height:18,
+            border:`1px solid ${isChecked?C.green:"rgba(201,160,90,0.35)"}`,
+            background:isChecked?C.green:"transparent",
+            display:"flex",alignItems:"center",justifyContent:"center",
+            transition:"all 0.2s",fontSize:10,color:C.navyDark,fontWeight:700,borderRadius:2}}>
+            {isChecked?"✓":""}
+          </div>
         </div>
+
+        {/* Text */}
         <div style={{flex:1}}>
-          <p style={{fontSize:14,color:isChecked?"rgba(200,192,176,0.35)":C.offWhite,
-            margin:"0 0 2px",lineHeight:1.5,textDecoration:isChecked?"line-through":"none"}}>{task.text}</p>
-          <p style={{fontSize:11,color:"rgba(201,160,90,0.45)",fontStyle:"italic",margin:0}}>{task.note}</p>
-          {sel&&<span style={{display:"inline-block",marginTop:5,padding:"1px 9px",
-            border:`1px solid ${C.gold}`,color:C.gold,fontSize:9,letterSpacing:"0.16em",
-            textTransform:"uppercase",fontWeight:600}}>{sel}</span>}
+          <p style={{
+            fontSize:14,fontWeight:500,
+            color:isChecked?"rgba(200,192,176,0.3)":C.offWhite,
+            margin:"0 0 3px",lineHeight:1.5,
+            textDecoration:isChecked?"line-through":"none"}}>
+            {task.text}
+          </p>
+          <p style={{fontSize:11,color:"rgba(201,160,90,0.45)",fontStyle:"italic",margin:0,lineHeight:1.5}}>
+            {task.note}
+          </p>
+          {sel&&(
+            <span style={{
+              display:"inline-flex",alignItems:"center",gap:5,
+              marginTop:6,padding:"2px 10px",
+              border:`1px solid ${C.gold}`,color:C.gold,
+              fontSize:9,letterSpacing:"0.16em",
+              textTransform:"uppercase",fontWeight:700,borderRadius:2}}>
+              ✓ {sel}
+            </span>
+          )}
         </div>
       </div>
 
+      {/* Divider before options */}
+      {task.options&&(
+        <div style={{height:1,background:"rgba(201,160,90,0.06)",margin:"0 16px"}}/>
+      )}
+
       {/* Options */}
       {task.options&&(
-        <div style={{padding:"0 16px 12px 50px",display:"flex",flexWrap:"wrap",gap:6}}>
+        <div style={{padding:"10px 16px 12px 46px",display:"flex",flexWrap:"wrap",gap:6}}>
           {task.options.map(opt=>{
             const isSel=sel===opt;
             return(
@@ -467,7 +506,8 @@ function TaskRow({pi,ti,task,checked,selection,attachment,threads,adminPhotos,
                 color:isSel?C.gold:"rgba(200,192,176,0.5)",
                 fontFamily:"'Montserrat',sans-serif",fontSize:10,fontWeight:isSel?700:500,
                 letterSpacing:"0.1em",textTransform:"uppercase",
-                padding:isSel?"4px 11px":"4px 12px",cursor:"pointer",transition:"all 0.15s",whiteSpace:"nowrap"}}>
+                padding:isSel?"4px 11px":"5px 12px",cursor:"pointer",
+                transition:"all 0.15s",whiteSpace:"nowrap",borderRadius:2}}>
                 {isSel?"✓  ":""}{opt}
               </button>
             );
