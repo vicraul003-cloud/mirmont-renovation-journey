@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { PHASE_IMAGES } from "./phaseImages";
 import { initializeApp, getApps } from "firebase/app";
 import { getDatabase, ref, set, get, onValue, push, remove } from "firebase/database";
 import { getAuth, signInAnonymously } from "firebase/auth";
@@ -38,9 +39,65 @@ const C = {
   green:"#4a9a3a",red:"#e07070",
 };
 
+// ─── PHASE ICONS (SVG) ───────────────────────────────────────────
+function PhaseIcon({name,size=20,color="#c9a05a"}){
+  const s={width:size,height:size,stroke:color,fill:"none",strokeWidth:1.6,strokeLinecap:"round",strokeLinejoin:"round"};
+  switch(name){
+    case "paint": return(
+      <svg viewBox="0 0 24 24" style={s}>
+        <path d="M12 2a7 7 0 0 1 7 7c0 3.5-3.5 6-3.5 9H8.5C8.5 15 5 12.5 5 9a7 7 0 0 1 7-7z"/>
+        <path d="M8.5 18h7"/><path d="M9 21h6"/>
+        <path d="M12 6v4m-2-2h4"/>
+      </svg>
+    );
+    case "floor": return(
+      <svg viewBox="0 0 24 24" style={s}>
+        <rect x="3" y="3" width="8" height="8" rx="1"/>
+        <rect x="13" y="3" width="8" height="8" rx="1"/>
+        <rect x="3" y="13" width="8" height="8" rx="1"/>
+        <rect x="13" y="13" width="8" height="8" rx="1"/>
+      </svg>
+    );
+    case "bath": return(
+      <svg viewBox="0 0 24 24" style={s}>
+        <path d="M4 12h16v3a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5v-3z"/>
+        <path d="M4 12V6a2 2 0 0 1 2-2h1a2 2 0 0 1 2 2v1"/>
+        <path d="M8 20v2M16 20v2"/>
+      </svg>
+    );
+    case "kitchen": return(
+      <svg viewBox="0 0 24 24" style={s}>
+        <path d="M6 3v7c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V3"/>
+        <path d="M3 3h18"/><path d="M12 12v9"/><path d="M8 21h8"/>
+        <path d="M10 6h4"/>
+      </svg>
+    );
+    case "door": return(
+      <svg viewBox="0 0 24 24" style={s}>
+        <path d="M14 2H6a1 1 0 0 0-1 1v18a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V7z"/>
+        <path d="M14 2v5h5"/><circle cx="16" cy="13" r="1" fill={color}/>
+      </svg>
+    );
+    case "light": return(
+      <svg viewBox="0 0 24 24" style={s}>
+        <path d="M9 18h6M10 22h4"/>
+        <path d="M12 2a7 7 0 0 1 5 11.9V16a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1v-2.1A7 7 0 0 1 12 2z"/>
+        <path d="M12 6v4m-2-2h4"/>
+      </svg>
+    );
+    case "check": return(
+      <svg viewBox="0 0 24 24" style={s}>
+        <path d="M9 12l2 2 4-4"/>
+        <path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/>
+      </svg>
+    );
+    default: return null;
+  }
+}
+
 // ─── PHASE DATA ──────────────────────────────────────────────────
 const PHASES = [
-  { label:"01", name:"Paint & Wall Finishes", icon:"🎨", description:"Colors, sheens, and surface treatments for every room.",
+  { label:"01", name:"Paint & Wall Finishes", icon:"paint", description:"Colors, sheens, and surface treatments for every room.",
     tasks:[
       {text:"Interior wall paint — living areas",note:"Select sheen finish",options:["Flat","Eggshell","Satin","Semi-Gloss","Gloss"]},
       {text:"Interior wall paint — bedrooms",note:"Select sheen finish",options:["Flat","Eggshell","Satin","Semi-Gloss","Gloss"]},
@@ -53,7 +110,7 @@ const PHASES = [
       {text:"Wainscoting or shiplap",note:"Select style if applying",options:["Wainscoting","Shiplap","Board & Batten","None"]},
       {text:"Exterior paint colors (if in scope)",note:"Select scope",options:["Full Exterior","Body Only","Trim Only","Front Door Only","Not in Scope"]},
     ]},
-  { label:"02", name:"Flooring", icon:"🪵", description:"Materials, patterns, and transitions for every surface.",
+  { label:"02", name:"Flooring", icon:"floor", description:"Materials, patterns, and transitions for every surface.",
     tasks:[
       {text:"Living area flooring",note:"Select flooring type",options:["Hardwood","LVP / Luxury Vinyl","Tile","Carpet","Polished Concrete"]},
       {text:"Bedroom flooring",note:"Select flooring type",options:["Hardwood","LVP / Luxury Vinyl","Carpet","Tile","Same as Living Area"]},
@@ -66,7 +123,7 @@ const PHASES = [
       {text:"Floor grout type for tile areas",note:"Select grout type",options:["Sanded","Unsanded","Epoxy","Pre-Mixed"]},
       {text:"Underlayment type",note:"Select underlayment",options:["Standard Foam","Cork","Acoustic / Sound-Reducing","Cement Board (tile)","Not Required"]},
     ]},
-  { label:"03", name:"Bathroom Selections", icon:"🛁", description:"Tile, fixtures, vanities, hardware, and enclosures.",
+  { label:"03", name:"Bathroom Selections", icon:"bath", description:"Tile, fixtures, vanities, hardware, and enclosures.",
     tasks:[
       {text:"Shower wall tile layout — primary bath",note:"Select tile pattern",options:["Straight Stack","Vertical Stack","Brick / Offset","Herringbone","Chevron"]},
       {text:"Shower wall tile layout — secondary bath",note:"Select tile pattern",options:["Straight Stack","Vertical Stack","Brick / Offset","Herringbone","Same as Primary"]},
@@ -79,7 +136,7 @@ const PHASES = [
       {text:"Shower head type",note:"Select shower head style",options:["Standard Fixed","Rain Head (ceiling)","Rain Head + Hand Wand","Multi-Function System","Body Sprays Included"]},
       {text:"Shower door / enclosure type",note:"Select enclosure style",options:["Frameless Glass — Pivot","Frameless Glass — Sliding","Semi-Frameless Sliding","Framed Sliding","Shower Curtain & Rod"]},
     ]},
-  { label:"04", name:"Kitchen Selections", icon:"🍳", description:"Cabinets, countertops, backsplash, sink, and appliances.",
+  { label:"04", name:"Kitchen Selections", icon:"kitchen", description:"Cabinets, countertops, backsplash, sink, and appliances.",
     tasks:[
       {text:"Cabinet door style",note:"Select door style",options:["Shaker","Flat Panel / Slab","Raised Panel","Beadboard","Inset"]},
       {text:"Cabinet finish — uppers",note:"Select finish type",options:["Painted — White / Off-White","Painted — Gray","Painted — Navy / Dark","Stained Wood — Light","Stained Wood — Dark"]},
@@ -92,7 +149,7 @@ const PHASES = [
       {text:"Kitchen faucet style",note:"Select faucet style",options:["Pull-Down Sprayer","Pull-Out Sprayer","Single Handle Fixed","Bridge Faucet","Touch / Touchless"]},
       {text:"Appliance package finish",note:"Select appliance finish",options:["Stainless Steel","Black Stainless","Matte Black","Panel-Ready","White"]},
     ]},
-  { label:"05", name:"Doors, Windows & Hardware", icon:"🚪", description:"Interior doors, hardware finishes, smart locks, window casing.",
+  { label:"05", name:"Doors, Windows & Hardware", icon:"door", description:"Interior doors, hardware finishes, smart locks, window casing.",
     tasks:[
       {text:"Interior door style",note:"Select door panel style",options:["6-Panel","5-Panel Shaker","Flat / Flush","French / Glass Panel","Barn Door"]},
       {text:"Interior door core type",note:"Select door construction",options:["Hollow Core","Solid Core","Fire-Rated (where required)"]},
@@ -103,7 +160,7 @@ const PHASES = [
       {text:"Front door smart lock",note:"Select smart lock preference",options:["Yes — Keypad","Yes — App + Keypad","Yes — Fingerprint","Standard Key Lock Only"]},
       {text:"Window trim / casing profile",note:"Select casing style",options:["Colonial / Traditional","Craftsman / Flat with Sill","Modern / Minimal Reveal","Match Existing","New Profile — TBD"]},
     ]},
-  { label:"06", name:"Lighting & Electrical", icon:"💡", description:"Fixtures, dimmers, smart switches, and outlet placements.",
+  { label:"06", name:"Lighting & Electrical", icon:"light", description:"Fixtures, dimmers, smart switches, and outlet placements.",
     tasks:[
       {text:"Dining / kitchen chandelier style",note:"Select fixture style",options:["Modern / Linear","Traditional / Crystal","Industrial / Metal","Farmhouse / Rustic","Drum Shade","No Chandelier"]},
       {text:"Living area ceiling fixture",note:"Select fixture type",options:["Ceiling Fan with Light","Flush Mount","Semi-Flush Mount","Pendant","Recessed Only"]},
@@ -114,7 +171,7 @@ const PHASES = [
       {text:"USB / USB-C outlet placement",note:"Select USB outlet preference",options:["Kitchen Island","Master Bedroom","Home Office","Multiple Locations","Not Adding"]},
       {text:"Recessed can light trim finish",note:"Select recessed trim color",options:["White (standard)","Brushed Nickel","Matte Black","Matching Ceiling Color"]},
     ]},
-  { label:"07", name:"Final Review & Sign-Off", icon:"✅", description:"Confirm orders, schedule appointments, hand off to your contractor.",
+  { label:"07", name:"Final Review & Sign-Off", icon:"check", description:"Confirm orders, schedule appointments, hand off to your contractor.",
     tasks:[
       {text:"All paint colors confirmed with contractor",note:"Final approval before painting",options:["Confirmed","Pending Review","Changes Needed"]},
       {text:"All tile and flooring orders placed",note:"Lead time confirmed",options:["Ordered — Lead Time Confirmed","Order Pending","Not Yet Selected"]},
@@ -853,16 +910,33 @@ export default function App(){
                     transition:"all 0.2s ease"}}>
 
                     <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:12}}>
-                      <div>
-                        <p style={{fontSize:10,letterSpacing:"0.28em",textTransform:"uppercase",color:"rgba(201,160,90,0.5)",margin:"0 0 4px"}}>Phase {phase.label}</p>
+                      <div style={{flex:1,paddingRight:14}}>
+                        <p style={{fontSize:10,letterSpacing:"0.28em",textTransform:"uppercase",color:"rgba(201,160,90,0.5)",margin:"0 0 6px"}}>Phase {phase.label}</p>
                         <h3 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:22,fontWeight:600,color:C.white,margin:0,lineHeight:1.2}}>{phase.name}</h3>
                       </div>
-                      <div style={{position:"relative"}}>
-                        <ProgressRing pct={ps.pct} size={44}/>
-                        <span style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18}}>{phase.icon}</span>
+                      {/* Circular photo with progress ring */}
+                      <div style={{position:"relative",width:90,height:90,flexShrink:0}}>
+                        <svg width="90" height="90" style={{position:"absolute",top:0,left:0,transform:"rotate(-90deg)",zIndex:2}}>
+                          <circle cx="45" cy="45" r="42" fill="none" stroke="rgba(201,160,90,0.15)" strokeWidth="3"/>
+                          <circle cx="45" cy="45" r="42" fill="none"
+                            stroke={complete?C.green:C.gold} strokeWidth="3"
+                            strokeDasharray={`${(ps.pct/100)*264} 264`}
+                            strokeLinecap="round"
+                            style={{transition:"stroke-dasharray 0.5s ease"}}/>
+                        </svg>
+                        <div style={{
+                          position:"absolute",top:4,left:4,width:82,height:82,
+                          borderRadius:"50%",overflow:"hidden",
+                          background:"rgba(201,160,90,0.1)",
+                          border:`2px solid ${complete?"rgba(74,154,58,0.4)":"rgba(201,160,90,0.2)"}`,
+                        }}>
+                          <img src={PHASE_IMAGES[pi]} alt={phase.name}
+                            style={{width:"100%",height:"100%",objectFit:"cover",display:"block"}}
+                            onError={e=>{e.target.style.display="none";}}/>
+                        </div>
                       </div>
                     </div>
-                    <p style={{fontSize:13,color:C.textLight,lineHeight:1.7,margin:"0 0 12px"}}>{phase.description}</p>
+                    <p style={{fontSize:13,color:C.textLight,lineHeight:1.7,margin:"0 0 14px"}}>{phase.description}</p>
                     <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
                       <span style={{fontSize:11,letterSpacing:"0.1em",textTransform:"uppercase",fontWeight:600,
                         color:complete?C.green:inprog?C.gold:"rgba(201,160,90,0.4)"}}>
@@ -895,7 +969,7 @@ export default function App(){
                       {phase.label}
                     </span>
                     <div style={{flex:1}}>
-                      <p style={{fontSize:11,fontWeight:600,letterSpacing:"0.14em",textTransform:"uppercase",color:C.offWhite,margin:"0 0 1px"}}>{phase.icon} {phase.name}</p>
+                      <p style={{fontSize:11,fontWeight:600,letterSpacing:"0.14em",textTransform:"uppercase",color:C.offWhite,margin:"0 0 1px",display:"flex",alignItems:"center",gap:6}}><PhaseIcon name={phase.icon} size={13}/>{phase.name}</p>
                       <p style={{fontSize:10,margin:0,letterSpacing:"0.08em",
                         color:complete?C.green:ps.done>0?C.gold:"rgba(201,160,90,0.35)"}}>
                         {complete?"Complete ✓":ps.done>0?`${ps.done} of ${ps.total} complete`:`${ps.total} tasks — not started`}
@@ -983,7 +1057,7 @@ export default function App(){
                 letterSpacing:"0.12em",textTransform:"uppercase",flexShrink:0}}>← Back</button>
               <div style={{flex:1}}>
                 <p style={{fontSize:9,letterSpacing:"0.3em",textTransform:"uppercase",color:"rgba(201,160,90,0.5)",margin:"0 0 1px"}}>Phase {phase.label} of 07</p>
-                <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:20,fontWeight:600,color:C.white,margin:0}}>{phase.icon} {phase.name}</h2>
+                <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:20,fontWeight:600,color:C.white,margin:0,display:"flex",alignItems:"center",gap:8}}><PhaseIcon name={phase.icon} size={18}/>{phase.name}</h2>
               </div>
               <div style={{textAlign:"right",flexShrink:0}}>
                 <ProgressRing pct={ps.pct} size={38}/>
