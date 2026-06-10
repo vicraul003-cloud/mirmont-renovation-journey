@@ -668,8 +668,12 @@ export default function App(){
   const [adminPhotos,setAdminPhotos]  = useState({});
   const [activePhases,setActivePhases]= useState(null);
   const [syncStatus,setSyncStatus]    = useState("synced");
-  const [view,setView]                = useState("journey");
-  const [activePhaseIdx,setActivePhaseIdx] = useState(null);
+  const [nav,setNav]                  = useState({view:"journey",phaseIdx:0});
+  const view    = nav.view;
+  const activePhaseIdx = nav.phaseIdx;
+  const setView = (v)=>setNav(n=>({...n,view:v}));
+  const setActivePhaseIdx = (idx)=>setNav(n=>({...n,phaseIdx:typeof idx==="function"?idx(n.phaseIdx):idx}));
+  const goToPhase = (idx)=>setNav({view:"phase",phaseIdx:idx});
   const [lightboxUrl,setLightboxUrl]  = useState(null);
 
   const fbProjectRef  = useRef(null);
@@ -906,7 +910,7 @@ export default function App(){
                 const complete=ps.done===ps.total;
                 const inprog=ps.done>0&&!complete;
                 return(
-                  <button key={pi} onClick={()=>{setActivePhaseIdx(pi);setView("phase");}}
+                  <button key={pi} onClick={()=>{goToPhase(pi);}}
                     onMouseEnter={e=>{const el=e.currentTarget;el.style.background="#132660";el.style.borderColor=complete?"rgba(74,154,58,0.8)":inprog?"rgba(201,160,90,0.8)":"rgba(201,160,90,0.5)";el.style.transform="translateY(-3px)";el.style.boxShadow="0 10px 36px rgba(201,160,90,0.14)";}}
                     onMouseLeave={e=>{const el=e.currentTarget;el.style.background=C.navy;el.style.borderColor=complete?"rgba(74,154,58,0.4)":inprog?"rgba(201,160,90,0.3)":"rgba(201,160,90,0.1)";el.style.transform="translateY(0)";el.style.boxShadow="none";}}
                     style={{
@@ -959,7 +963,7 @@ export default function App(){
               const hasSel=phase.tasks.some((_,ti)=>selections[tk(pi,ti)]);
               return(
                 <div key={pi} style={{marginBottom:10}}>
-                  <button onClick={()=>{setActivePhaseIdx(pi);setView("phase");}} style={{
+                  <button onClick={()=>{goToPhase(pi);}} style={{
                     width:"100%",background:C.navy,
                     border:`1px solid ${complete?"rgba(74,154,58,0.3)":"rgba(201,160,90,0.15)"}`,
                     display:"flex",alignItems:"center",gap:14,padding:"12px 16px",cursor:"pointer",textAlign:"left"}}>
@@ -1016,7 +1020,7 @@ export default function App(){
                     Pending Decisions ({pending.length})
                   </p>
                   {pending.slice(0,8).map((p,i)=>(
-                    <div key={i} onClick={()=>{setActivePhaseIdx(p.pi);setView("phase");}} style={{
+                    <div key={i} onClick={()=>{goToPhase(p.pi);}} style={{
                       display:"flex",gap:10,padding:"6px 0",cursor:"pointer",
                       borderBottom:i<Math.min(pending.length,8)-1?"1px solid rgba(201,160,90,0.07)":"none"}}>
                       <span style={{width:5,height:5,borderRadius:"50%",background:"rgba(201,160,90,0.4)",flexShrink:0,marginTop:6}}/>
@@ -1038,7 +1042,7 @@ export default function App(){
   }
 
   // ── PHASE DETAIL ──────────────────────────────────────────────
-  if(view==="phase" && activePhaseIdx !== null){
+  if(view==="phase"){
     const phase=PHASES[activePhaseIdx];
     if(!phase) return <div style={{minHeight:"100vh",background:C.navyDark,color:C.gold,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'Montserrat',sans-serif",fontSize:14,padding:24}}>Phase not found (index {activePhaseIdx}). <button onClick={()=>setView("journey")} style={{marginLeft:12,color:C.gold,background:"none",border:"1px solid",padding:"4px 12px",cursor:"pointer"}}>Back</button></div>;
     const ps=phaseStats(activePhaseIdx,checked);
