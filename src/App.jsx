@@ -916,7 +916,7 @@ export default function App(){
                       </div>
                       {/* Circular photo with progress ring */}
                       <div style={{position:"relative",width:96,height:96,flexShrink:0}}>
-                        {/* Progress ring SVG on top */}
+                        {/* Progress ring */}
                         <svg width="96" height="96" style={{position:"absolute",top:0,left:0,transform:"rotate(-90deg)",zIndex:3,pointerEvents:"none"}}>
                           <circle cx="48" cy="48" r="44" fill="none" stroke="rgba(201,160,90,0.15)" strokeWidth="3"/>
                           <circle cx="48" cy="48" r="44" fill="none"
@@ -925,19 +925,19 @@ export default function App(){
                             strokeLinecap="round"
                             style={{transition:"stroke-dasharray 0.5s ease"}}/>
                         </svg>
-                        {/* Circular image container — strictly clipped */}
-                        <div style={{
-                          position:"absolute",top:4,left:4,
-                          width:88,height:88,
-                          borderRadius:"50%",
-                          overflow:"hidden",
-                          WebkitMaskImage:"-webkit-radial-gradient(circle,white 100%,black 100%)",
-                          background:C.navyMid,
-                        }}>
-                          <img src={PHASE_IMAGES[pi]} alt={phase.name}
-                            style={{width:"100%",height:"100%",objectFit:"cover",objectPosition:"center",display:"block"}}
-                            onError={e=>{e.target.style.display="none";}}/>
-                        </div>
+                        {/* Photo clipped to circle using clipPath inside SVG — 100% reliable */}
+                        <svg width="96" height="96" style={{position:"absolute",top:0,left:0}}>
+                          <defs>
+                            <clipPath id={`clip-${pi}`}>
+                              <circle cx="48" cy="48" r="42"/>
+                            </clipPath>
+                          </defs>
+                          <image
+                            href={PHASE_IMAGES[pi]}
+                            x="6" y="6" width="84" height="84"
+                            preserveAspectRatio="xMidYMid slice"
+                            clipPath={`url(#clip-${pi})`}/>
+                        </svg>
                       </div>
                     </div>
                     <p style={{fontSize:13,color:C.textLight,lineHeight:1.7,margin:"0 0 14px"}}>{phase.description}</p>
