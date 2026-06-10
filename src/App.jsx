@@ -845,27 +845,26 @@ export default function App(){
                   <button key={pi} onClick={()=>{setActivePhaseIdx(pi);setView("phase");}} style={{
                     background:C.navy,
                     border:`1px solid ${complete?"rgba(74,154,58,0.4)":inprog?"rgba(201,160,90,0.3)":"rgba(201,160,90,0.1)"}`,
-                    borderRadius:20,
-                    cursor:"pointer",padding:"22px",textAlign:"left",position:"relative"}}>
-                    <div style={{position:"absolute",top:0,left:0,right:0,height:3,borderRadius:"20px 20px 0 0",
+                    cursor:"pointer",padding:"18px",textAlign:"left",position:"relative",overflow:"hidden"}}>
+                    <div style={{position:"absolute",top:0,left:0,right:0,height:2,
                       background:complete?C.green:inprog?C.gold:"rgba(201,160,90,0.15)"}}/>
-                    <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:12}}>
+                    <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:10}}>
                       <div>
-                        <p style={{fontSize:10,letterSpacing:"0.28em",textTransform:"uppercase",color:"rgba(201,160,90,0.5)",margin:"0 0 4px"}}>Phase {phase.label}</p>
-                        <h3 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:22,fontWeight:600,color:C.white,margin:0,lineHeight:1.2}}>{phase.name}</h3>
+                        <p style={{fontSize:9,letterSpacing:"0.28em",textTransform:"uppercase",color:"rgba(201,160,90,0.5)",margin:"0 0 3px"}}>Phase {phase.label}</p>
+                        <h3 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:19,fontWeight:600,color:C.white,margin:0,lineHeight:1.2}}>{phase.name}</h3>
                       </div>
                       <div style={{position:"relative"}}>
-                        <ProgressRing pct={ps.pct} size={44}/>
-                        <span style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18}}>{phase.icon}</span>
+                        <ProgressRing pct={ps.pct} size={42}/>
+                        <span style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:16}}>{phase.icon}</span>
                       </div>
                     </div>
-                    <p style={{fontSize:13,color:C.textLight,lineHeight:1.7,margin:"0 0 12px"}}>{phase.description}</p>
+                    <p style={{fontSize:11,color:C.textLight,lineHeight:1.7,margin:"0 0 10px"}}>{phase.description}</p>
                     <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-                      <span style={{fontSize:11,letterSpacing:"0.1em",textTransform:"uppercase",fontWeight:600,
+                      <span style={{fontSize:10,letterSpacing:"0.1em",textTransform:"uppercase",fontWeight:600,
                         color:complete?C.green:inprog?C.gold:"rgba(201,160,90,0.4)"}}>
                         {complete?"Complete ✓":inprog?`${ps.done} of ${ps.total} done`:`${ps.total} selections`}
                       </span>
-                      <span style={{color:C.gold,fontSize:16}}>›</span>
+                      <span style={{color:C.gold,fontSize:15}}>›</span>
                     </div>
                   </button>
                 );
