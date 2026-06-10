@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import { PHASE_IMAGES } from "./phaseImages";
 import { initializeApp, getApps } from "firebase/app";
-import { getDatabase, ref, set, get, onValue, push, remove } from "firebase/database";
+import { getDatabase, ref, set, get, onValue, push } from "firebase/database";
 import { getAuth, signInAnonymously } from "firebase/auth";
 
 // ─── FIREBASE ────────────────────────────────────────────────────
@@ -955,7 +955,7 @@ export default function App(){
                     onMouseLeave={e=>{const el=e.currentTarget;el.style.background=C.navy;el.style.borderColor=complete?"rgba(74,154,58,0.4)":inprog?"rgba(201,160,90,0.3)":"rgba(201,160,90,0.1)";el.style.transform="translateY(0)";el.style.boxShadow="none";}}
                     style={{
                     background:C.navy,
-                    border:`1px solid ${complete?"rgba(74,154,58,0.4)":inprog?"rgba(201,160,90,0.3)":"rgba(201,160,90,0.1)"}`,
+                    border:`1px solid ${complete?"rgba(74,154,58,0.4)":(inprog?"rgba(201,160,90,0.3)":"rgba(201,160,90,0.1)")}`,
                     borderRadius:20,
                     cursor:"pointer",padding:"22px",textAlign:"left",position:"relative",
                     transition:"all 0.2s ease"}}>
