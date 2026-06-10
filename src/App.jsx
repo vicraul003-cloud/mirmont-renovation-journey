@@ -715,7 +715,11 @@ export default function App(){
       setChecked(d.checked||{});
       setSelections(d.selections||{});
       setAttachments(d.attachments||{});
-      setActivePhases(d.activePhases?Object.values(d.activePhases):null);
+      const raw=d.activePhases?Object.values(d.activePhases):null;
+      // Normalize: Firebase may store "1" or 1 instead of "01" — convert all to zero-padded strings
+      const normalised=raw?raw.map(v=>String(v).padStart(2,"0")):null;
+      console.log("[Mirmont] activePhases from Firebase:", raw, "→ normalised:", normalised);
+      setActivePhases(normalised);
       setSyncStatus("synced");
     }).catch(()=>setSyncStatus("error"));
 
@@ -728,7 +732,9 @@ export default function App(){
       setChecked(d.checked||{});
       setSelections(d.selections||{});
       setAttachments(d.attachments||{});
-      setActivePhases(d.activePhases?Object.values(d.activePhases):null);
+      const raw2=d.activePhases?Object.values(d.activePhases):null;
+      const normalised2=raw2?raw2.map(v=>String(v).padStart(2,"0")):null;
+      setActivePhases(normalised2);
       setSyncStatus("synced");
     });
 
