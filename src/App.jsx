@@ -99,16 +99,16 @@ function PhaseIcon({name,size=20,color="#c9a05a"}){
 const PHASES = [
   { label:"01", name:"Paint & Wall Finishes", icon:"paint", description:"Colors, sheens, and surface treatments for every room.",
     tasks:[
-      {text:"Interior wall paint — living areas",note:"Select sheen finish",options:["Flat","Eggshell","Satin","Semi-Gloss","Gloss"]},
-      {text:"Interior wall paint — bedrooms",note:"Select sheen finish",options:["Flat","Eggshell","Satin","Semi-Gloss","Gloss"]},
-      {text:"Interior wall paint — bathrooms",note:"Moisture-resistant sheen",options:["Eggshell","Satin","Semi-Gloss"]},
-      {text:"Interior wall paint — kitchen",note:"Select sheen finish",options:["Eggshell","Satin","Semi-Gloss"]},
-      {text:"Ceiling paint color & finish",note:"Select ceiling finish",options:["Flat White (Standard)","Custom Color — Flat","Custom Color — Eggshell"]},
-      {text:"Trim, baseboard & door casing paint",note:"Select trim sheen",options:["Satin","Semi-Gloss","High Gloss"]},
-      {text:"Accent or feature wall",note:"Select treatment type",options:["Paint — Solid","Wallpaper","Shiplap / Board & Batten","Stone or Tile","None"]},
-      {text:"Wall texture type",note:"Select texture style",options:["Smooth / Level 5","Skip Trowel","Orange Peel","Knockdown","Match Existing"]},
-      {text:"Wainscoting or shiplap",note:"Select style if applying",options:["Wainscoting","Shiplap","Board & Batten","None"]},
-      {text:"Exterior paint colors (if in scope)",note:"Select scope",options:["Full Exterior","Body Only","Trim Only","Front Door Only","Not in Scope"]},
+      {text:"Interior wall paint color — living areas",note:"Select a paint sheen finish",options:["Flat","Eggshell","Satin","Semi-Gloss","Gloss"]},
+      {text:"Interior wall paint color — bedrooms",note:"Select a paint sheen finish",options:["Flat","Eggshell","Satin","Semi-Gloss","Gloss"]},
+      {text:"Interior wall paint color — bathrooms",note:"Select a moisture-resistant sheen finish",options:["Eggshell","Satin","Semi-Gloss"]},
+      {text:"Interior wall paint color — kitchen",note:"Select a paint sheen finish",options:["Eggshell","Satin","Semi-Gloss"]},
+      {text:"Ceiling paint color and finish",note:"Select ceiling finish",options:["Flat White (Standard)","Custom Color — Flat","Custom Color — Eggshell"]},
+      {text:"Trim, baseboard, and door casing paint color",note:"Select trim sheen",options:["Satin","Semi-Gloss","High Gloss"]},
+      {text:"Accent or feature wall selection",note:"Select treatment type",options:["Paint — Solid Color","Wallpaper","Shiplap / Board & Batten","Stone or Tile","None"]},
+      {text:"Wall texture type",note:"Select texture style",options:["Smooth / Level 5","Skip Trowel","Orange Peel","Knockdown","Existing — Match Only"]},
+      {text:"Wainscoting or shiplap (if applicable)",note:"Select style if applying",options:["Wainscoting","Shiplap","Board & Batten","None"]},
+      {text:"Exterior paint colors confirmed (if in scope)",note:"Select scope of exterior painting",options:["Full Exterior","Body Only","Trim Only","Front Door Only","Not in Scope"]},
     ]},
   { label:"02", name:"Flooring", icon:"floor", description:"Materials, patterns, and transitions for every surface.",
     tasks:[
@@ -669,7 +669,7 @@ export default function App(){
   const [activePhases,setActivePhases]= useState(null);
   const [syncStatus,setSyncStatus]    = useState("synced");
   const [view,setView]                = useState("journey");
-  const [activePhaseIdx,setActivePhaseIdx] = useState(0);
+  const [activePhaseIdx,setActivePhaseIdx] = useState(null);
   const [lightboxUrl,setLightboxUrl]  = useState(null);
 
   const fbProjectRef  = useRef(null);
@@ -1038,7 +1038,7 @@ export default function App(){
   }
 
   // ── PHASE DETAIL ──────────────────────────────────────────────
-  if(view==="phase"){
+  if(view==="phase" && activePhaseIdx !== null){
     const phase=PHASES[activePhaseIdx];
     const ps=phaseStats(activePhaseIdx,checked);
     return(
