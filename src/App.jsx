@@ -914,30 +914,17 @@ export default function App(){
                         <p style={{fontSize:10,letterSpacing:"0.28em",textTransform:"uppercase",color:"rgba(201,160,90,0.5)",margin:"0 0 6px"}}>Phase {phase.label}</p>
                         <h3 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:22,fontWeight:600,color:C.white,margin:0,lineHeight:1.2}}>{phase.name}</h3>
                       </div>
-                      {/* Circular photo with progress ring */}
-                      <div style={{position:"relative",width:96,height:96,flexShrink:0}}>
-                        {/* Progress ring */}
-                        <svg width="96" height="96" style={{position:"absolute",top:0,left:0,transform:"rotate(-90deg)",zIndex:3,pointerEvents:"none"}}>
-                          <circle cx="48" cy="48" r="44" fill="none" stroke="rgba(201,160,90,0.15)" strokeWidth="3"/>
-                          <circle cx="48" cy="48" r="44" fill="none"
-                            stroke={complete?C.green:C.gold} strokeWidth="3"
-                            strokeDasharray={`${(ps.pct/100)*276} 276`}
-                            strokeLinecap="round"
-                            style={{transition:"stroke-dasharray 0.5s ease"}}/>
-                        </svg>
-                        {/* Photo clipped to circle using clipPath inside SVG — 100% reliable */}
-                        <svg width="96" height="96" style={{position:"absolute",top:0,left:0}}>
-                          <defs>
-                            <clipPath id={`clip-${pi}`}>
-                              <circle cx="48" cy="48" r="42"/>
-                            </clipPath>
-                          </defs>
-                          <image
-                            href={PHASE_IMAGES[pi]}
-                            x="6" y="6" width="84" height="84"
-                            preserveAspectRatio="xMidYMid slice"
-                            clipPath={`url(#clip-${pi})`}/>
-                        </svg>
+                      {/* Square rounded photo thumbnail — top right */}
+                      <div style={{
+                        width:86,height:86,flexShrink:0,
+                        borderRadius:14,
+                        overflow:"hidden",
+                        border:`1px solid ${complete?"rgba(74,154,58,0.4)":"rgba(201,160,90,0.25)"}`,
+                        background:C.navyMid,
+                      }}>
+                        <img src={PHASE_IMAGES[pi]} alt={phase.name}
+                          style={{width:"100%",height:"100%",objectFit:"cover",objectPosition:"center",display:"block"}}
+                          onError={e=>{e.target.style.display="none";}}/>
                       </div>
                     </div>
                     <p style={{fontSize:13,color:C.textLight,lineHeight:1.7,margin:"0 0 14px"}}>{phase.description}</p>
