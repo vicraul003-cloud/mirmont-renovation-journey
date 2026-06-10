@@ -845,9 +845,9 @@ export default function App(){
                   <button key={pi} onClick={()=>{setActivePhaseIdx(pi);setView("phase");}} style={{
                     background:C.navy,
                     border:`1px solid ${complete?"rgba(74,154,58,0.4)":inprog?"rgba(201,160,90,0.3)":"rgba(201,160,90,0.1)"}`,
-                    borderRadius:16,
+                    borderRadius:24,
                     cursor:"pointer",padding:"22px",textAlign:"left",position:"relative",overflow:"hidden"}}>
-                    <div style={{position:"absolute",top:0,left:0,right:0,height:3,borderRadius:"16px 16px 0 0",
+                    <div style={{position:"absolute",top:0,left:0,right:0,height:3,borderRadius:"24px 24px 0 0",
                       background:complete?C.green:inprog?C.gold:"rgba(201,160,90,0.15)"}}/>
                     <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:12}}>
                       <div>
