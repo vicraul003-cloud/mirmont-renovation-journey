@@ -1040,6 +1040,7 @@ export default function App(){
   // ── PHASE DETAIL ──────────────────────────────────────────────
   if(view==="phase" && activePhaseIdx !== null){
     const phase=PHASES[activePhaseIdx];
+    if(!phase) return <div style={{minHeight:"100vh",background:C.navyDark,color:C.gold,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'Montserrat',sans-serif",fontSize:14,padding:24}}>Phase not found (index {activePhaseIdx}). <button onClick={()=>setView("journey")} style={{marginLeft:12,color:C.gold,background:"none",border:"1px solid",padding:"4px 12px",cursor:"pointer"}}>Back</button></div>;
     const ps=phaseStats(activePhaseIdx,checked);
     return(
       <div style={{minHeight:"100vh",background:C.navyDark,fontFamily:"'Montserrat',sans-serif",color:C.white}}>
@@ -1076,7 +1077,7 @@ export default function App(){
 
         {/* Tasks */}
         <div style={{maxWidth:720,margin:"0 auto",padding:"16px 14px 110px"}}>
-          {phase.tasks.map((task,ti)=>(
+          {(phase.tasks||[]).map((task,ti)=>(
             <TaskRow key={ti}
               pi={activePhaseIdx} ti={ti} task={task}
               checked={checked} selection={selections[tk(activePhaseIdx,ti)]}
