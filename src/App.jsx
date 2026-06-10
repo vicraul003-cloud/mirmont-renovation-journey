@@ -900,7 +900,8 @@ export default function App(){
             </p>
             <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(250px,1fr))",gap:10}}>
               {visiblePhases.map((phase,vpi)=>{
-                const pi=PHASES.indexOf(phase);
+                const pi=PHASES.findIndex(p=>p.label===phase.label);
+                if(pi===-1) return null;
                 const ps=phaseStats(pi,checked);
                 const complete=ps.done===ps.total;
                 const inprog=ps.done>0&&!complete;
