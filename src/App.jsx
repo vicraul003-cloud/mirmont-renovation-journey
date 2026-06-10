@@ -851,8 +851,7 @@ export default function App(){
                     borderRadius:20,
                     cursor:"pointer",padding:"22px",textAlign:"left",position:"relative",
                     transition:"all 0.2s ease"}}>
-                    <div style={{position:"absolute",top:0,left:0,right:0,height:3,borderRadius:"20px 20px 0 0",
-                      background:complete?C.green:inprog?C.gold:"rgba(201,160,90,0.15)"}}/>
+
                     <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:12}}>
                       <div>
                         <p style={{fontSize:10,letterSpacing:"0.28em",textTransform:"uppercase",color:"rgba(201,160,90,0.5)",margin:"0 0 4px"}}>Phase {phase.label}</p>
