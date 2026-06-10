@@ -18,8 +18,7 @@ const fbApp  = getApps().length ? getApps()[0] : initializeApp(FB_CONFIG);
 const db     = getDatabase(fbApp);
 const auth   = getAuth(fbApp);
 
-const IMGBB_KEY  = "fc64721f619cd9120c8751cf404d2313";
-const DRIVE_URL  = "https://script.google.com/macros/s/AKfycbxN-f1n0TNzX6QiTYMcukrKiCzObPzFmZvt5MYLycmtZLZzjamV1zK4ii-09R3wNrMn/exec";
+const DRIVE_URL  = "https://script.google.com/macros/s/AKfycbyVw1VI22doSox60uDz4AmocwBIgufRvepUu3iuKZacl1mGWCnJ53gEuEomXC1Immv2Ww/exec";
 const SHEETS_URL = "https://script.google.com/macros/s/AKfycbwVq5bUYhEOYmirCQy-DJIJ5cDTLSo8WXfFINhLypJxv47LTdf7wlrkLvexUA1dozhC/exec";
 
 const DEFAULT_CODES = {
@@ -391,11 +390,18 @@ function TaskRow({pi,ti,task,checked,selection,attachment,threads,adminPhotos,
     let photoUrl=null;
     if(commentPhoto){
       try{
-        const b64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(commentPhoto);});
-        const form=new FormData();form.append("image",b64.split(",")[1]);form.append("key",IMGBB_KEY);
-        const res=await fetch("https://api.imgbb.com/1/upload",{method:"POST",body:form});
+        const b64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(",")[1]);r.onerror=rej;r.readAsDataURL(commentPhoto);});
+        const params=new URLSearchParams({
+          fileName:commentPhoto.name||"comment-photo.jpg",
+          mimeType:commentPhoto.type||"image/jpeg",
+          data:b64,
+          projectCode:session?.code||"general",
+          phaseLabel:String(pi+1).padStart(2,"0"),
+          taskText:"comment"
+        });
+        const res=await fetch(DRIVE_URL,{method:"POST",body:params});
         const data=await res.json();
-        if(data.success) photoUrl=data.data.url;
+        if(data.success) photoUrl=data.url;
       }catch(_){}
     }
     await onSendThread(k,pi,ti,text,photoUrl);
@@ -405,14 +411,22 @@ function TaskRow({pi,ti,task,checked,selection,attachment,threads,adminPhotos,
 
   async function handleUploadPhoto(e){
     const file=e.target.files[0]; if(!file) return;
+    if(file.size>25*1024*1024){setFileStatus("File too large (max 25MB)");return;}
     setFileStatus("Uploading photo..."); e.target.value="";
     try{
-      const b64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file);});
-      const form=new FormData();form.append("image",b64.split(",")[1]);form.append("key",IMGBB_KEY);
-      const res=await fetch("https://api.imgbb.com/1/upload",{method:"POST",body:form});
+      const b64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(",")[1]);r.onerror=rej;r.readAsDataURL(file);});
+      const params=new URLSearchParams({
+        fileName:file.name,
+        mimeType:file.type||"image/jpeg",
+        data:b64,
+        projectCode:session?.code||"general",
+        phaseLabel:String(pi+1).padStart(2,"0"),
+        taskText:task?.text||""
+      });
+      const res=await fetch(DRIVE_URL,{method:"POST",body:params});
       const data=await res.json();
-      if(data.success){ onUploadPhoto(pi,ti,{url:data.data.url}); setFileStatus(""); }
-      else throw new Error();
+      if(data.success){ onUploadPhoto(pi,ti,{url:data.url}); setFileStatus(""); }
+      else throw new Error(data.error||"Upload failed");
     }catch(_){ setFileStatus("Upload failed. Try a URL instead."); }
   }
 
@@ -422,7 +436,14 @@ function TaskRow({pi,ti,task,checked,selection,attachment,threads,adminPhotos,
     setFileStatus("Uploading to Drive..."); e.target.value="";
     try{
       const b64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(",")[1]);r.onerror=rej;r.readAsDataURL(file);});
-      const params=new URLSearchParams({fileName:file.name,mimeType:file.type||"application/octet-stream",data:b64});
+      const params=new URLSearchParams({
+        fileName:file.name,
+        mimeType:file.type||"application/octet-stream",
+        data:b64,
+        projectCode:session?.code||"general",
+        phaseLabel:String(pi+1).padStart(2,"0"),
+        taskText:task?.text||""
+      });
       const res=await fetch(DRIVE_URL,{method:"POST",body:params});
       const data=await res.json();
       if(data.success){ onUploadDoc(pi,ti,{url:data.url,name:file.name}); setFileStatus(""); }
