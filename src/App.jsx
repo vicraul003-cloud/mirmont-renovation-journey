@@ -997,7 +997,9 @@ export default function App(){
         {/* Summary */}
         {isSummary&&(
           <div style={{maxWidth:720,margin:"0 auto",padding:"24px 14px 48px"}}>
-            {PHASES.map((phase,pi)=>{
+            {visiblePhases.map((phase)=>{
+              const pi=PHASES.findIndex(p=>p.label===phase.label);
+              if(pi===-1) return null;
               const ps=phaseStats(pi,checked);
               const complete=ps.done===ps.total;
               const hasSel=phase.tasks.some((_,ti)=>selections[tk(pi,ti)]);
@@ -1044,9 +1046,13 @@ export default function App(){
             {/* Pending */}
             {(()=>{
               const pending=[];
-              PHASES.forEach((phase,pi)=>phase.tasks.forEach((task,ti)=>{
-                if(!checked[tk(pi,ti)]) pending.push({phase:phase.name,task:task.text,pi});
-              }));
+              visiblePhases.forEach((phase)=>{
+                const pi=PHASES.findIndex(p=>p.label===phase.label);
+                if(pi===-1) return;
+                phase.tasks.forEach((task,ti)=>{
+                  if(!checked[tk(pi,ti)]) pending.push({phase:phase.name,task:task.text,pi});
+                });
+              });
               if(!pending.length) return(
                 <div style={{textAlign:"center",padding:"28px 20px",background:"rgba(74,154,58,0.08)",border:"1px solid rgba(74,154,58,0.25)",marginTop:8}}>
                   <p style={{fontSize:26,margin:"0 0 6px"}}>🎉</p>
