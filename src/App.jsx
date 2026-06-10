@@ -18,7 +18,7 @@ const fbApp  = getApps().length ? getApps()[0] : initializeApp(FB_CONFIG);
 const db     = getDatabase(fbApp);
 const auth   = getAuth(fbApp);
 
-const DRIVE_URL  = "https://script.google.com/macros/s/AKfycbyVw1VI22doSox60uDz4AmocwBIgufRvepUu3iuKZacl1mGWCnJ53gEuEomXC1Immv2Ww/exec";
+const DRIVE_URL  = "https://script.google.com/macros/s/AKfycbyFNyxG2fytgBo76Ze0txVWVwvnwT0JYdL5XekZ3V7w7v1HK-C2T7OOUkjuto7A98ezNQ/exec";
 const SHEETS_URL = "https://script.google.com/macros/s/AKfycbwVq5bUYhEOYmirCQy-DJIJ5cDTLSo8WXfFINhLypJxv47LTdf7wlrkLvexUA1dozhC/exec";
 
 const DEFAULT_CODES = {
@@ -409,25 +409,31 @@ function TaskRow({pi,ti,task,checked,selection,attachment,threads,adminPhotos,
     setShowThread(true);
   }
 
+  async function uploadToDrive(file, pi, ti){
+    const b64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(",")[1]);r.onerror=rej;r.readAsDataURL(file);});
+    const params=new URLSearchParams({
+      fileName:file.name,
+      mimeType:file.type||"application/octet-stream",
+      data:b64,
+      projectCode:session?.code||"general",
+      phaseLabel:String(pi+1).padStart(2,"0"),
+      taskText:task?.text||""
+    });
+    const res=await fetch(DRIVE_URL,{method:"POST",body:params,redirect:"follow"});
+    const text=await res.text();
+    try{ return JSON.parse(text); }
+    catch(_){ throw new Error("Invalid response from Drive"); }
+  }
+
   async function handleUploadPhoto(e){
     const file=e.target.files[0]; if(!file) return;
     if(file.size>25*1024*1024){setFileStatus("File too large (max 25MB)");return;}
     setFileStatus("Uploading photo..."); e.target.value="";
     try{
-      const b64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(",")[1]);r.onerror=rej;r.readAsDataURL(file);});
-      const params=new URLSearchParams({
-        fileName:file.name,
-        mimeType:file.type||"image/jpeg",
-        data:b64,
-        projectCode:session?.code||"general",
-        phaseLabel:String(pi+1).padStart(2,"0"),
-        taskText:task?.text||""
-      });
-      const res=await fetch(DRIVE_URL,{method:"POST",body:params});
-      const data=await res.json();
+      const data=await uploadToDrive(file,pi,ti);
       if(data.success){ onUploadPhoto(pi,ti,{url:data.url}); setFileStatus(""); }
       else throw new Error(data.error||"Upload failed");
-    }catch(_){ setFileStatus("Upload failed. Try a URL instead."); }
+    }catch(err){ setFileStatus("Upload failed — "+err.message); }
   }
 
   async function handleUploadDoc(e){
@@ -435,20 +441,10 @@ function TaskRow({pi,ti,task,checked,selection,attachment,threads,adminPhotos,
     if(file.size>25*1024*1024){setFileStatus("File too large (max 25MB)");return;}
     setFileStatus("Uploading to Drive..."); e.target.value="";
     try{
-      const b64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(",")[1]);r.onerror=rej;r.readAsDataURL(file);});
-      const params=new URLSearchParams({
-        fileName:file.name,
-        mimeType:file.type||"application/octet-stream",
-        data:b64,
-        projectCode:session?.code||"general",
-        phaseLabel:String(pi+1).padStart(2,"0"),
-        taskText:task?.text||""
-      });
-      const res=await fetch(DRIVE_URL,{method:"POST",body:params});
-      const data=await res.json();
+      const data=await uploadToDrive(file,pi,ti);
       if(data.success){ onUploadDoc(pi,ti,{url:data.url,name:file.name}); setFileStatus(""); }
       else throw new Error(data.error||"Upload failed");
-    }catch(e){ setFileStatus("Upload failed — "+e.message); }
+    }catch(err){ setFileStatus("Upload failed — "+err.message); }
   }
 
   function handleSaveUrl(){
