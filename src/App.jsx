@@ -1043,9 +1043,13 @@ export default function App(){
 
   // ── PHASE DETAIL ──────────────────────────────────────────────
   if(view==="phase"){
-    const phase=PHASES[activePhaseIdx];
-    if(!phase) return <div style={{minHeight:"100vh",background:C.navyDark,color:C.gold,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'Montserrat',sans-serif",fontSize:14,padding:24}}>Phase not found (index {activePhaseIdx}). <button onClick={()=>setView("journey")} style={{marginLeft:12,color:C.gold,background:"none",border:"1px solid",padding:"4px 12px",cursor:"pointer"}}>Back</button></div>;
-    const ps=phaseStats(activePhaseIdx,checked);
+    // Safety: ensure we have a valid phase
+    const phaseIdx = (activePhaseIdx >= 0 && activePhaseIdx < PHASES.length) ? activePhaseIdx : 0;
+    const phase = PHASES[phaseIdx];
+    const ps = phaseStats(phaseIdx, checked);
+    const isFirst = phaseIdx === 0;
+    const isLast  = phaseIdx === PHASES.length - 1;
+
     return(
       <div style={{minHeight:"100vh",background:C.navyDark,fontFamily:"'Montserrat',sans-serif",color:C.white}}>
         <Lightbox url={lightboxUrl} onClose={()=>setLightboxUrl(null)}/>
@@ -1055,13 +1059,15 @@ export default function App(){
           padding:"14px 16px 10px",position:"sticky",top:0,zIndex:50}}>
           <div style={{maxWidth:720,margin:"0 auto"}}>
             <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:8}}>
-              <button onClick={()=>setView("journey")} style={{
+              <button onClick={()=>setNav({view:"journey",phaseIdx:phaseIdx})} style={{
                 background:"none",border:"1px solid rgba(201,160,90,0.2)",color:C.gold,
                 cursor:"pointer",padding:"5px 12px",fontSize:10,fontFamily:"'Montserrat',sans-serif",
                 letterSpacing:"0.12em",textTransform:"uppercase",flexShrink:0}}>← Back</button>
               <div style={{flex:1}}>
                 <p style={{fontSize:9,letterSpacing:"0.3em",textTransform:"uppercase",color:"rgba(201,160,90,0.5)",margin:"0 0 1px"}}>Phase {phase.label} of 07</p>
-                <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:20,fontWeight:600,color:C.white,margin:0,display:"flex",alignItems:"center",gap:8}}><PhaseIcon name={phase.icon} size={18}/>{phase.name}</h2>
+                <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:20,fontWeight:600,color:C.white,margin:0,display:"flex",alignItems:"center",gap:8}}>
+                  <PhaseIcon name={phase.icon} size={18}/>{phase.name}
+                </h2>
               </div>
               <div style={{textAlign:"right",flexShrink:0}}>
                 <ProgressRing pct={ps.pct} size={38}/>
@@ -1082,16 +1088,16 @@ export default function App(){
         {/* Tasks */}
         <div style={{maxWidth:720,margin:"0 auto",padding:"16px 14px 110px"}}>
           {(phase.tasks||[]).map((task,ti)=>(
-            <TaskRow key={ti}
-              pi={activePhaseIdx} ti={ti} task={task}
-              checked={checked} selection={selections[tk(activePhaseIdx,ti)]}
-              attachment={attachments[tk(activePhaseIdx,ti)]?
-                (typeof attachments[tk(activePhaseIdx,ti)]==="string"
-                  ? (() => { try{return JSON.parse(attachments[tk(activePhaseIdx,ti)]);}catch{return {imgs:[],links:[],docs:[]};} })()
-                  : attachments[tk(activePhaseIdx,ti)])
+            <TaskRow key={`${phaseIdx}-${ti}`}
+              pi={phaseIdx} ti={ti} task={task}
+              checked={checked} selection={selections[tk(phaseIdx,ti)]}
+              attachment={attachments[tk(phaseIdx,ti)]?
+                (typeof attachments[tk(phaseIdx,ti)]==="string"
+                  ? (()=>{try{return JSON.parse(attachments[tk(phaseIdx,ti)]);}catch{return {imgs:[],links:[],docs:[]};}}())
+                  : attachments[tk(phaseIdx,ti)])
                 : {imgs:[],links:[],docs:[]}}
-              threads={threads[tk(activePhaseIdx,ti)]||{}}
-              adminPhotos={adminPhotos[tk(activePhaseIdx,ti)]||[]}
+              threads={threads[tk(phaseIdx,ti)]||{}}
+              adminPhotos={adminPhotos[tk(phaseIdx,ti)]||[]}
               onToggle={toggleTask} onOption={setOption}
               onSaveUrl={handleSaveUrl} onUploadPhoto={handleUploadPhoto}
               onUploadDoc={handleUploadDoc} onRemoveImg={handleRemoveImg}
@@ -1105,22 +1111,24 @@ export default function App(){
         <div style={{position:"fixed",bottom:0,left:0,right:0,background:C.navyMid,
           borderTop:"1px solid rgba(201,160,90,0.15)",padding:"12px 16px",
           display:"flex",alignItems:"center",justifyContent:"space-between",gap:10,zIndex:50}}>
-          <button onClick={()=>setActivePhaseIdx(i=>Math.max(0,i-1))} disabled={activePhaseIdx===0} style={{
-            background:"none",border:"1px solid rgba(201,160,90,0.2)",
-            color:activePhaseIdx===0?"rgba(201,160,90,0.25)":C.gold,
-            fontFamily:"'Montserrat',sans-serif",fontSize:10,fontWeight:600,
-            letterSpacing:"0.14em",textTransform:"uppercase",
-            padding:"10px 14px",cursor:activePhaseIdx===0?"default":"pointer",flex:1}}>← Prev</button>
+          <button
+            onClick={()=>setNav({view:"phase",phaseIdx:phaseIdx-1})}
+            disabled={isFirst}
+            style={{background:"none",border:"1px solid rgba(201,160,90,0.2)",
+              color:isFirst?"rgba(201,160,90,0.25)":C.gold,
+              fontFamily:"'Montserrat',sans-serif",fontSize:10,fontWeight:600,
+              letterSpacing:"0.14em",textTransform:"uppercase",
+              padding:"10px 14px",cursor:isFirst?"default":"pointer",flex:1}}>← Prev</button>
           <span style={{fontSize:9,letterSpacing:"0.18em",color:"rgba(201,160,90,0.45)",textTransform:"uppercase",textAlign:"center",flexShrink:0}}>
-            {activePhaseIdx+1} / {PHASES.length}
+            {phaseIdx+1} / {PHASES.length}
           </span>
-          {activePhaseIdx<PHASES.length-1?(
-            <button onClick={()=>setActivePhaseIdx(i=>i+1)} style={{
+          {!isLast?(
+            <button onClick={()=>setNav({view:"phase",phaseIdx:phaseIdx+1})} style={{
               background:C.gold,border:"none",color:C.navyDark,fontFamily:"'Montserrat',sans-serif",
               fontSize:10,fontWeight:700,letterSpacing:"0.14em",textTransform:"uppercase",
               padding:"10px 14px",cursor:"pointer",flex:1}}>Next Phase →</button>
           ):(
-            <button onClick={()=>setView("summary")} style={{
+            <button onClick={()=>setNav({view:"summary",phaseIdx:phaseIdx})} style={{
               background:C.green,border:"none",color:C.white,fontFamily:"'Montserrat',sans-serif",
               fontSize:10,fontWeight:700,letterSpacing:"0.14em",textTransform:"uppercase",
               padding:"10px 14px",cursor:"pointer",flex:1}}>View Summary →</button>
