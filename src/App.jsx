@@ -915,23 +915,27 @@ export default function App(){
                         <h3 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:22,fontWeight:600,color:C.white,margin:0,lineHeight:1.2}}>{phase.name}</h3>
                       </div>
                       {/* Circular photo with progress ring */}
-                      <div style={{position:"relative",width:90,height:90,flexShrink:0}}>
-                        <svg width="90" height="90" style={{position:"absolute",top:0,left:0,transform:"rotate(-90deg)",zIndex:2}}>
-                          <circle cx="45" cy="45" r="42" fill="none" stroke="rgba(201,160,90,0.15)" strokeWidth="3"/>
-                          <circle cx="45" cy="45" r="42" fill="none"
+                      <div style={{position:"relative",width:96,height:96,flexShrink:0}}>
+                        {/* Progress ring SVG on top */}
+                        <svg width="96" height="96" style={{position:"absolute",top:0,left:0,transform:"rotate(-90deg)",zIndex:3,pointerEvents:"none"}}>
+                          <circle cx="48" cy="48" r="44" fill="none" stroke="rgba(201,160,90,0.15)" strokeWidth="3"/>
+                          <circle cx="48" cy="48" r="44" fill="none"
                             stroke={complete?C.green:C.gold} strokeWidth="3"
-                            strokeDasharray={`${(ps.pct/100)*264} 264`}
+                            strokeDasharray={`${(ps.pct/100)*276} 276`}
                             strokeLinecap="round"
                             style={{transition:"stroke-dasharray 0.5s ease"}}/>
                         </svg>
+                        {/* Circular image container — strictly clipped */}
                         <div style={{
-                          position:"absolute",top:4,left:4,width:82,height:82,
-                          borderRadius:"50%",overflow:"hidden",
-                          background:"rgba(201,160,90,0.1)",
-                          border:`2px solid ${complete?"rgba(74,154,58,0.4)":"rgba(201,160,90,0.2)"}`,
+                          position:"absolute",top:4,left:4,
+                          width:88,height:88,
+                          borderRadius:"50%",
+                          overflow:"hidden",
+                          WebkitMaskImage:"-webkit-radial-gradient(circle,white 100%,black 100%)",
+                          background:C.navyMid,
                         }}>
                           <img src={PHASE_IMAGES[pi]} alt={phase.name}
-                            style={{width:"100%",height:"100%",objectFit:"cover",display:"block"}}
+                            style={{width:"100%",height:"100%",objectFit:"cover",objectPosition:"center",display:"block"}}
                             onError={e=>{e.target.style.display="none";}}/>
                         </div>
                       </div>
