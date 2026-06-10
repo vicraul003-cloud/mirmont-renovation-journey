@@ -187,6 +187,12 @@ const PHASES = [
 // ─── HELPERS ─────────────────────────────────────────────────────
 function tk(pi,ti){ return `${pi}_${ti}`; }
 function safeCode(c){ return c.replace(/[^a-zA-Z0-9]/g,"_"); }
+function parseAtt(raw){
+  const def={imgs:[],links:[],docs:[]};
+  if(!raw) return def;
+  if(typeof raw==="string"){ try{ return Object.assign(def,JSON.parse(raw)); }catch{ return def; } }
+  return Object.assign(def,raw);
+}
 function totalStats(checked,phases){
   let total=0,done=0;
   phases.forEach((p,pi)=>{ total+=p.tasks.length; done+=p.tasks.filter((_,ti)=>!!checked[tk(pi,ti)]).length; });
@@ -838,12 +844,7 @@ export default function App(){
     setTimeout(()=>{suppressRef.current=false;},1000);
   }
 
-  function getAtt(pi,ti){
-    const raw=attachments[tk(pi,ti)];
-    const def={imgs:[],links:[],docs:[]};
-    if(!raw) return def;
-    try{ const p=typeof raw==="string"?JSON.parse(raw):raw; return Object.assign(def,p); }catch{ return def; }
-  }
+  function getAtt(pi,ti){ return parseAtt(attachments[tk(pi,ti)]); }
   function saveAtt(pi,ti,att){
     const k=tk(pi,ti); const str=JSON.stringify(att);
     suppressRef.current=true;
@@ -1137,11 +1138,7 @@ export default function App(){
             <TaskRow key={`${phaseIdx}-${ti}`}
               pi={phaseIdx} ti={ti} task={task}
               checked={checked} selection={selections[tk(phaseIdx,ti)]}
-              attachment={attachments[tk(phaseIdx,ti)]?
-                (typeof attachments[tk(phaseIdx,ti)]==="string"
-                  ? (()=>{try{return JSON.parse(attachments[tk(phaseIdx,ti)]);}catch{return {imgs:[],links:[],docs:[]};}}())
-                  : attachments[tk(phaseIdx,ti)])
-                : {imgs:[],links:[],docs:[]}}
+              attachment={parseAtt(attachments[tk(phaseIdx,ti)])}
               threads={threads[tk(phaseIdx,ti)]||{}}
               adminPhotos={adminPhotos[tk(phaseIdx,ti)]||[]}
               onToggle={toggleTask} onOption={setOption}
