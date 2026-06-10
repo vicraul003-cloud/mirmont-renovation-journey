@@ -921,9 +921,10 @@ export default function App(){
                         overflow:"hidden",
                         border:`1px solid ${complete?"rgba(74,154,58,0.4)":"rgba(201,160,90,0.25)"}`,
                         background:C.navyMid,
+                        pointerEvents:"none",
                       }}>
                         <img src={PHASE_IMAGES[pi]} alt={phase.name}
-                          style={{width:"100%",height:"100%",objectFit:"cover",objectPosition:"center",display:"block"}}
+                          style={{width:"100%",height:"100%",objectFit:"cover",objectPosition:"center",display:"block",pointerEvents:"none"}}
                           onError={e=>{e.target.style.display="none";}}/>
                       </div>
                     </div>
