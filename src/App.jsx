@@ -18,7 +18,7 @@ const fbApp  = getApps().length ? getApps()[0] : initializeApp(FB_CONFIG);
 const db     = getDatabase(fbApp);
 const auth   = getAuth(fbApp);
 
-const DRIVE_URL  = "https://script.google.com/macros/s/AKfycbyFNyxG2fytgBo76Ze0txVWVwvnwT0JYdL5XekZ3V7w7v1HK-C2T7OOUkjuto7A98ezNQ/exec";
+const DRIVE_URL  = "https://script.google.com/macros/s/AKfycbxXxB-fpAqJdYDUWxhH8D9qMY0GHzAHwbnAuPn-2pXjOLajfcbOvmN3ERw-oGLwW6wwcA/exec";
 const SHEETS_URL = "https://script.google.com/macros/s/AKfycbwVq5bUYhEOYmirCQy-DJIJ5cDTLSo8WXfFINhLypJxv47LTdf7wlrkLvexUA1dozhC/exec";
 
 const DEFAULT_CODES = {
@@ -430,7 +430,7 @@ function TaskRow({pi,ti,task,checked,selection,attachment,threads,adminPhotos,
     setFileStatus("Uploading photo..."); e.target.value="";
     try{
       const data=await uploadToDrive(file,pi,ti);
-      if(data.success){ onUploadPhoto(pi,ti,{url:data.url}); setFileStatus(""); }
+      if(data.success){ onUploadPhoto(pi,ti,{url:data.url,thumbnailUrl:data.thumbnailUrl||data.url}); setFileStatus(""); }
       else throw new Error(data.error||"Upload failed");
     }catch(err){ setFileStatus("Upload failed — "+err.message); }
   }
@@ -625,7 +625,7 @@ function TaskRow({pi,ti,task,checked,selection,attachment,threads,adminPhotos,
           <div style={{display:"flex",flexWrap:"wrap",gap:8,marginBottom:8}}>
             {att.imgs.map((img,i)=>(
               <div key={i} style={{position:"relative",width:60,height:60,flexShrink:0}}>
-                <img src={img.url} alt="" onClick={()=>onLightbox(img.url)}
+                <img src={img.thumbnailUrl||img.url} alt="" onClick={()=>onLightbox(img.url)}
                   style={{width:60,height:60,objectFit:"cover",border:"1px solid rgba(201,160,90,0.35)",cursor:"pointer"}}/>
                 <button onClick={()=>onRemoveImg(pi,ti,i)} style={{position:"absolute",top:-6,right:-6,
                   width:16,height:16,borderRadius:"50%",background:C.gold,color:C.navyDark,
