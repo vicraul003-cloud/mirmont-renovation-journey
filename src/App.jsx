@@ -18,7 +18,7 @@ const fbApp  = getApps().length ? getApps()[0] : initializeApp(FB_CONFIG);
 const db     = getDatabase(fbApp);
 const auth   = getAuth(fbApp);
 
-const DRIVE_URL  = "https://script.google.com/macros/s/AKfycbxXxB-fpAqJdYDUWxhH8D9qMY0GHzAHwbnAuPn-2pXjOLajfcbOvmN3ERw-oGLwW6wwcA/exec";
+const DRIVE_URL  = "https://script.google.com/macros/s/AKfycbwPBu9x_asFas8mK4wL5_w2AUaPTg99ZBqhoEm5RTYZIbJMwmz5dHZYY3d4F-Cin-LbYg/exec";
 const SHEETS_URL = "https://script.google.com/macros/s/AKfycbwVq5bUYhEOYmirCQy-DJIJ5cDTLSo8WXfFINhLypJxv47LTdf7wlrkLvexUA1dozhC/exec";
 
 const DEFAULT_CODES = {
@@ -428,7 +428,9 @@ function TaskRow({pi,ti,task,checked,selection,attachment,threads,adminPhotos,
     // Strip any HTML wrapper Google sometimes adds
     const jsonMatch=text.match(/\{.*\}/s);
     if(!jsonMatch) throw new Error("No JSON in response");
-    return JSON.parse(jsonMatch[0]);
+    const result=JSON.parse(jsonMatch[0]);
+    console.log("[Drive response]", result);
+    return result;
   }
 
   async function handleUploadPhoto(e){
