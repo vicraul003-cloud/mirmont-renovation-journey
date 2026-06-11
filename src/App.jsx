@@ -1170,14 +1170,14 @@ export default function App(){
     return(
       <div style={{minHeight:"100vh",background:C.navyDark,fontFamily:"'Montserrat',sans-serif",color:C.white,overflowX:"hidden"}}>
         <style>{`
-          .phase-header{position:-webkit-sticky;position:sticky;top:0;z-index:50;background:#0d1e4a;border-bottom:1px solid rgba(201,160,90,0.15);padding:14px 16px 10px;}
-          .phase-bottom{position:fixed;bottom:0;left:0;right:0;z-index:50;background:#132660;border-top:1px solid rgba(201,160,90,0.15);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+          .phase-header{position:-webkit-sticky!important;position:sticky!important;top:0;z-index:50;}
+          .phase-bottom{position:fixed;bottom:0;left:0;right:0;z-index:50;}
           @keyframes _pulse{0%,100%{opacity:1}50%{opacity:0.3}}
         `}</style>
         <Lightbox url={lightboxUrl} onClose={()=>setLightboxUrl(null)}/>
 
         {/* Sticky header */}
-        <div className="phase-header">
+        <div className="phase-header" style={{background:C.navy,borderBottom:"1px solid rgba(201,160,90,0.15)",padding:"14px 16px 10px"}}>
           <div style={{maxWidth:720,margin:"0 auto"}}>
             <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:8}}>
               <button onClick={()=>setNav({view:"journey",phaseIdx:phaseIdx})} style={{
@@ -1225,7 +1225,9 @@ export default function App(){
         </div>
 
         {/* Bottom nav */}
-        <div className="phase-bottom">
+        <div className="phase-bottom" style={{background:C.navyMid,
+          borderTop:"1px solid rgba(201,160,90,0.15)",padding:"12px 16px",
+          display:"flex",alignItems:"center",justifyContent:"space-between",gap:10}}>
           <button
             onClick={()=>setNav({view:"phase",phaseIdx:phaseIdx-1})}
             disabled={isFirst}
