@@ -18,7 +18,7 @@ const fbApp  = getApps().length ? getApps()[0] : initializeApp(FB_CONFIG);
 const db     = getDatabase(fbApp);
 const auth   = getAuth(fbApp);
 
-const DRIVE_URL  = "https://script.google.com/macros/s/AKfycbwPBu9x_asFas8mK4wL5_w2AUaPTg99ZBqhoEm5RTYZIbJMwmz5dHZYY3d4F-Cin-LbYg/exec";
+const DRIVE_URL  = "https://script.google.com/macros/s/AKfycbxoctE0AAounK9N1ZYagGqclRO1zIz3pUeXDwvh5YBRVEc7eT15OrdvyawgWktzz22q8Q/exec";
 const SHEETS_URL = "https://script.google.com/macros/s/AKfycbwVq5bUYhEOYmirCQy-DJIJ5cDTLSo8WXfFINhLypJxv47LTdf7wlrkLvexUA1dozhC/exec";
 
 const DEFAULT_CODES = {
@@ -416,6 +416,7 @@ function TaskRow({pi,ti,task,checked,selection,attachment,threads,adminPhotos,
       data:b64,
       projectCode:session?.code||"general",
       phaseLabel:PHASES[pi]?.label||String(pi+1).padStart(2,"0"),
+      taskIndex:String(ti+1).padStart(2,"0"),
       taskText:task?.text||""
     });
     // Use no-cors to avoid CORS preflight, then parse response text
