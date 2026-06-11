@@ -495,8 +495,9 @@ function TaskRow({pi,ti,task,checked,selection,attachment,threads,adminPhotos,
 
   function handleSaveUrl(){
     if(!urlVal.trim()){setUrlError("Please enter a URL.");return;}
-    try{new URL(urlVal.trim());}catch(_){setUrlError("Please enter a valid URL.");return;}
-    onSaveUrl(pi,ti,urlVal.trim()); setUrlVal(""); setUrlError(""); setShowUrlInput(false);
+    let val=urlVal.trim();
+    if(!/^https?:\/\//i.test(val)) val="https://"+val;
+    onSaveUrl(pi,ti,val); setUrlVal(""); setUrlError(""); setShowUrlInput(false);
   }
 
   const hasPreviews=att.imgs.length>0||att.links.length>0||att.docs.length>0;
@@ -753,7 +754,7 @@ function TaskRow({pi,ti,task,checked,selection,attachment,threads,adminPhotos,
         {showUrlInput&&(
           <div style={{display:"flex",alignItems:"center",gap:8,marginTop:8,flexWrap:"wrap"}}>
             <input value={urlVal} onChange={e=>{setUrlVal(e.target.value);setUrlError("");}}
-              placeholder="https://..." type="url"
+              placeholder="Paste or type any link..." type="text"
               onKeyDown={e=>{if(e.key==="Enter")handleSaveUrl();}}
               style={{flex:1,minWidth:180,background:C.navy,border:"1px solid rgba(201,160,90,0.2)",
                 color:C.offWhite,fontFamily:"'Montserrat',sans-serif",fontSize:12,
