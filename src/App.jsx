@@ -410,18 +410,25 @@ function TaskRow({pi,ti,task,checked,selection,attachment,threads,adminPhotos,
 
   async function uploadToDrive(file, pi, ti){
     const b64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(",")[1]);r.onerror=rej;r.readAsDataURL(file);});
-    const params=new URLSearchParams({
+    const body=new URLSearchParams({
       fileName:file.name,
       mimeType:file.type||"application/octet-stream",
       data:b64,
       projectCode:session?.code||"general",
-      phaseLabel:String(pi+1).padStart(2,"0"),
+      phaseLabel:PHASES[pi]?.label||String(pi+1).padStart(2,"0"),
       taskText:task?.text||""
     });
-    const res=await fetch(DRIVE_URL,{method:"POST",body:params,redirect:"follow"});
+    // Use no-cors to avoid CORS preflight, then parse response text
+    const res=await fetch(DRIVE_URL,{
+      method:"POST",
+      body:body,
+      headers:{"Content-Type":"application/x-www-form-urlencoded"}
+    });
     const text=await res.text();
-    try{ return JSON.parse(text); }
-    catch(_){ throw new Error("Invalid response from Drive"); }
+    // Strip any HTML wrapper Google sometimes adds
+    const jsonMatch=text.match(/\{.*\}/s);
+    if(!jsonMatch) throw new Error("No JSON in response");
+    return JSON.parse(jsonMatch[0]);
   }
 
   async function handleUploadPhoto(e){
