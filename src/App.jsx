@@ -1168,12 +1168,16 @@ export default function App(){
     const isLast  = phaseIdx === PHASES.length - 1;
 
     return(
-      <div style={{minHeight:"100vh",background:C.navyDark,fontFamily:"'Montserrat',sans-serif",color:C.white}}>
+      <div style={{minHeight:"100vh",background:C.navyDark,fontFamily:"'Montserrat',sans-serif",color:C.white,overflowX:"hidden"}}>
+        <style>{`
+          .phase-header{position:-webkit-sticky;position:sticky;top:0;z-index:50;background:#0d1e4a;border-bottom:1px solid rgba(201,160,90,0.15);padding:14px 16px 10px;}
+          .phase-bottom{position:fixed;bottom:0;left:0;right:0;z-index:50;background:#132660;border-top:1px solid rgba(201,160,90,0.15);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+          @keyframes _pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+        `}</style>
         <Lightbox url={lightboxUrl} onClose={()=>setLightboxUrl(null)}/>
 
         {/* Sticky header */}
-        <div style={{background:C.navy,borderBottom:"1px solid rgba(201,160,90,0.15)",
-          padding:"14px 16px 10px",position:"sticky",top:0,zIndex:50}}>
+        <div className="phase-header">
           <div style={{maxWidth:720,margin:"0 auto"}}>
             <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:8}}>
               <button onClick={()=>setNav({view:"journey",phaseIdx:phaseIdx})} style={{
@@ -1221,9 +1225,7 @@ export default function App(){
         </div>
 
         {/* Bottom nav */}
-        <div style={{position:"fixed",bottom:0,left:0,right:0,background:C.navyMid,
-          borderTop:"1px solid rgba(201,160,90,0.15)",padding:"12px 16px",
-          display:"flex",alignItems:"center",justifyContent:"space-between",gap:10,zIndex:50}}>
+        <div className="phase-bottom">
           <button
             onClick={()=>setNav({view:"phase",phaseIdx:phaseIdx-1})}
             disabled={isFirst}
@@ -1247,7 +1249,6 @@ export default function App(){
               padding:"10px 14px",cursor:"pointer",flex:1}}>View Summary →</button>
           )}
         </div>
-        <style>{`@keyframes _pulse{0%,100%{opacity:1}50%{opacity:0.3}}`}</style>
       </div>
     );
   }
