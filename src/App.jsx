@@ -360,7 +360,7 @@ function LoginScreen({onLogin}){
 // ─── TASK ROW ────────────────────────────────────────────────────
 function TaskRow({pi,ti,task,checked,selection,attachment,threads,adminPhotos,
   onToggle,onOption,onSaveUrl,onUploadPhoto,onUploadDoc,onRemoveImg,onRemoveLink,onRemoveDoc,
-  onSendThread,onLightbox,syncStatus}){
+  onSendThread,onLightbox,syncStatus,session}){
   const k=tk(pi,ti);
   const isChecked=!!checked[k];
   const sel=selection||"";
@@ -395,8 +395,7 @@ function TaskRow({pi,ti,task,checked,selection,attachment,threads,adminPhotos,
           fileName:commentPhoto.name||"comment-photo.jpg",
           mimeType:commentPhoto.type||"image/jpeg",
           data:b64,
-          projectCode:session?.code||"general",
-          phaseLabel:String(pi+1).padStart(2,"0"),
+          projectCode:session?.code||"general",          phaseLabel:String(pi+1).padStart(2,"0"),
           taskText:"comment"
         });
         const res=await fetch(DRIVE_URL,{method:"POST",body:params});
@@ -1163,7 +1162,7 @@ export default function App(){
               onUploadDoc={handleUploadDoc} onRemoveImg={handleRemoveImg}
               onRemoveLink={handleRemoveLink} onRemoveDoc={handleRemoveDoc}
               onSendThread={handleSendThread} onLightbox={setLightboxUrl}
-              syncStatus={syncStatus}/>
+              syncStatus={syncStatus} session={session}/>
           ))}
         </div>
 
