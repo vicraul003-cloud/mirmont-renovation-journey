@@ -438,14 +438,24 @@ function TaskRow({pi,ti,task,checked,selection,attachment,threads,adminPhotos,
       const img=new Image();
       const url=URL.createObjectURL(file);
       img.onload=()=>{
-        const canvas=document.createElement("canvas");
+        // Full preview (max 1200px)
+        const full=document.createElement("canvas");
+        const maxFull=1200;
+        const ratioFull=Math.min(maxFull/img.width,maxFull/img.height,1);
+        full.width=img.width*ratioFull;
+        full.height=img.height*ratioFull;
+        full.getContext("2d").drawImage(img,0,0,full.width,full.height);
+        const fullB64=full.toDataURL("image/jpeg",0.9);
+        // Thumbnail (max 120px)
+        const thumb=document.createElement("canvas");
         const max=120;
         const ratio=Math.min(max/img.width,max/img.height);
-        canvas.width=img.width*ratio;
-        canvas.height=img.height*ratio;
-        canvas.getContext("2d").drawImage(img,0,0,canvas.width,canvas.height);
+        thumb.width=img.width*ratio;
+        thumb.height=img.height*ratio;
+        thumb.getContext("2d").drawImage(img,0,0,thumb.width,thumb.height);
+        const thumbB64=thumb.toDataURL("image/jpeg",0.7);
         URL.revokeObjectURL(url);
-        res(canvas.toDataURL("image/jpeg",0.7));
+        res({thumbB64,fullB64});
       };
       img.onerror=()=>{ URL.revokeObjectURL(url); res(null); };
       img.src=url;
@@ -457,12 +467,16 @@ function TaskRow({pi,ti,task,checked,selection,attachment,threads,adminPhotos,
     if(file.size>25*1024*1024){setFileStatus("File too large (max 25MB)");return;}
     setFileStatus("Uploading photo..."); e.target.value="";
     try{
-      const [data, thumb]=await Promise.all([
+      const [data, previews]=await Promise.all([
         uploadToDrive(file,pi,ti),
         generateThumbnail(file)
       ]);
       if(data.success){
-        onUploadPhoto(pi,ti,{url:data.url,thumbnailUrl:thumb||data.thumbnailUrl||data.url});
+        onUploadPhoto(pi,ti,{
+          url:       previews?.fullB64  || data.url,
+          thumbnailUrl: previews?.thumbB64 || data.thumbnailUrl || data.url,
+          driveUrl:  data.viewUrl || data.url
+        });
         setFileStatus("");
       } else throw new Error(data.error||"Upload failed");
     }catch(err){ setFileStatus("Upload failed — "+err.message); }
@@ -660,6 +674,11 @@ function TaskRow({pi,ti,task,checked,selection,attachment,threads,adminPhotos,
               <div key={i} style={{position:"relative",width:60,height:60,flexShrink:0}}>
                 <img src={img.thumbnailUrl||img.url} alt="" onClick={()=>onLightbox(img.url)}
                   style={{width:60,height:60,objectFit:"cover",border:"1px solid rgba(201,160,90,0.35)",cursor:"pointer"}}/>
+                {img.driveUrl&&(
+                  <a href={img.driveUrl} target="_blank" rel="noreferrer" style={{
+                    position:"absolute",bottom:0,right:0,background:"rgba(9,21,53,0.85)",
+                    color:C.gold,fontSize:8,padding:"1px 3px",textDecoration:"none",lineHeight:1.5}}>↗</a>
+                )}
                 <button onClick={()=>onRemoveImg(pi,ti,i)} style={{position:"absolute",top:-6,right:-6,
                   width:16,height:16,borderRadius:"50%",background:C.gold,color:C.navyDark,
                   border:"none",fontSize:9,fontWeight:700,cursor:"pointer",display:"flex",
