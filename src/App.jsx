@@ -433,14 +433,38 @@ function TaskRow({pi,ti,task,checked,selection,attachment,threads,adminPhotos,
     return result;
   }
 
+  function generateThumbnail(file){
+    return new Promise((res)=>{
+      const img=new Image();
+      const url=URL.createObjectURL(file);
+      img.onload=()=>{
+        const canvas=document.createElement("canvas");
+        const max=120;
+        const ratio=Math.min(max/img.width,max/img.height);
+        canvas.width=img.width*ratio;
+        canvas.height=img.height*ratio;
+        canvas.getContext("2d").drawImage(img,0,0,canvas.width,canvas.height);
+        URL.revokeObjectURL(url);
+        res(canvas.toDataURL("image/jpeg",0.7));
+      };
+      img.onerror=()=>{ URL.revokeObjectURL(url); res(null); };
+      img.src=url;
+    });
+  }
+
   async function handleUploadPhoto(e){
     const file=e.target.files[0]; if(!file) return;
     if(file.size>25*1024*1024){setFileStatus("File too large (max 25MB)");return;}
     setFileStatus("Uploading photo..."); e.target.value="";
     try{
-      const data=await uploadToDrive(file,pi,ti);
-      if(data.success){ onUploadPhoto(pi,ti,{url:data.url,thumbnailUrl:data.thumbnailUrl||data.url}); setFileStatus(""); }
-      else throw new Error(data.error||"Upload failed");
+      const [data, thumb]=await Promise.all([
+        uploadToDrive(file,pi,ti),
+        generateThumbnail(file)
+      ]);
+      if(data.success){
+        onUploadPhoto(pi,ti,{url:data.url,thumbnailUrl:thumb||data.thumbnailUrl||data.url});
+        setFileStatus("");
+      } else throw new Error(data.error||"Upload failed");
     }catch(err){ setFileStatus("Upload failed — "+err.message); }
   }
 
