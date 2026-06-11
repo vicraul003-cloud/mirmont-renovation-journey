@@ -466,7 +466,7 @@ function TaskRow({pi,ti,task,checked,selection,attachment,threads,adminPhotos,
   async function handleUploadPhoto(e){
     const file=e.target.files[0]; if(!file) return;
     if(file.size>25*1024*1024){setFileStatus("File too large (max 25MB)");return;}
-    setFileStatus("Uploading photo..."); e.target.value="";
+    setFileStatus("Uploading..."); e.target.value="";
     try{
       const [data, previews]=await Promise.all([
         uploadToDrive(file,pi,ti),
@@ -486,7 +486,7 @@ function TaskRow({pi,ti,task,checked,selection,attachment,threads,adminPhotos,
   async function handleUploadDoc(e){
     const file=e.target.files[0]; if(!file) return;
     if(file.size>25*1024*1024){setFileStatus("File too large (max 25MB)");return;}
-    setFileStatus("Uploading to Drive..."); e.target.value="";
+    setFileStatus("Uploading..."); e.target.value="";
     try{
       const data=await uploadToDrive(file,pi,ti);
       if(data.success){ onUploadDoc(pi,ti,{url:data.url,name:file.name}); setFileStatus(""); }
